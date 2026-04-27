@@ -2,8 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import ModulePageLoader from './components/ModulePageLoader';
 import Store from './pages/Store';
-
-function DataSources() { return <div className="text-2xl font-semibold text-gray-700">Data Sources</div>; }
+import DataSources from './pages/DataSources';
 
 export default function App() {
   return (
