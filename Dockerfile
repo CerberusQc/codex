@@ -1,8 +1,11 @@
 # Stage 1: build
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-base
 
-# Install Node.js and npm
-RUN apt-get update && apt-get install -y nodejs npm && rm -rf /var/lib/apt/lists/*
+# Install Node.js 20 (apt default is 18, too old for Vite 6 which requires 20+)
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
 
@@ -26,8 +29,11 @@ RUN cp -r src/Codex.Shell/dist/. /out/wwwroot/
 # Stage 2: runtime
 FROM mcr.microsoft.com/dotnet/aspnet:8.0
 
-# Install Node.js, npm, and git (needed for runtime module building and git polling)
-RUN apt-get update && apt-get install -y nodejs npm git && rm -rf /var/lib/apt/lists/*
+# Install Node.js 20 and git (needed for runtime module building and git polling)
+RUN apt-get update && apt-get install -y curl git && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
