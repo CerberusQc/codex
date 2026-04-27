@@ -1,0 +1,11 @@
+services:
+  codex:
+    build: .
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./modules:/modules          # live modules repo
+      - codex-data:/app/data        # SQLite + built module artifacts
+
+volumes:
+  codex-data:
