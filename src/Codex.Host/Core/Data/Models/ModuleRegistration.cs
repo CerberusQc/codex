@@ -10,6 +10,6 @@ public class ModuleRegistration
     public string PageRoute { get; set; } = default!;
     public string Status { get; set; } = "Discovered";
     public string? BuildLog { get; set; }
-    public string? LoadedAt { get; set; }
+    public DateTimeOffset? LoadedAt { get; set; }
     public string ManifestHash { get; set; } = default!;
 }

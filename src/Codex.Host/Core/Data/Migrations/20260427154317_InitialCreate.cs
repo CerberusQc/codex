@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
@@ -48,7 +49,7 @@ namespace Codex.Host.Core.Data.Migrations
                     PageRoute = table.Column<string>(type: "TEXT", nullable: false),
                     Status = table.Column<string>(type: "TEXT", nullable: false),
                     BuildLog = table.Column<string>(type: "TEXT", nullable: true),
-                    LoadedAt = table.Column<string>(type: "TEXT", nullable: true),
+                    LoadedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: true),
                     ManifestHash = table.Column<string>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
