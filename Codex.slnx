@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Codex.Host.Tests/Codex.Host.Tests.csproj" />
+    <Project Path="src/Codex.Host/Codex.Host.csproj" />
+    <Project Path="src/Codex.ModuleSDK/Codex.ModuleSDK.csproj" />
+  </Folder>
+</Solution>
