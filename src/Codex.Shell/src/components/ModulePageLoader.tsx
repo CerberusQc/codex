@@ -1,41 +1,29 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { init, loadRemote, registerRemotes } from '@module-federation/runtime';
 
-// remoteEntry.js files built by @module-federation/vite are ES modules.
-// The runtime's default <script> loader fails with "Cannot use import statement outside a module".
-// This plugin makes the runtime use <script type="module"> instead.
-const esmPlugin = {
-  name: 'esm-entry-loader',
-  createScript({ url }: { url: string }) {
-    const script = document.createElement('script');
-    script.type = 'module';
-    script.src = url;
-    return script;
-  }
-};
+// @module-federation/vite builds remoteEntry.js as a pure ES module that exports
+// { init, get } — the standard MF container interface. We load it via native
+// import() rather than @module-federation/runtime's loadRemote, which uses
+// <script> tags and looks for window[name] globals that are never set.
+interface MFContainer {
+  init: (shareScope: Record<string, unknown>, initScope?: unknown[]) => Promise<unknown>;
+  get: (module: string) => Promise<() => { default: React.ComponentType }>;
+}
 
-// Initialize the MF host once; remotes are registered dynamically as modules are opened.
-init({
-  name: 'codex-shell',
-  remotes: [],
-  plugins: [esmPlugin],
-  shared: {
-    react: { version: '18.0.0', strategy: 'loaded-first' },
-    'react-dom': { version: '18.0.0', strategy: 'loaded-first' }
-  }
-});
-
-const registeredModules = new Set<string>();
+const loadedContainers = new Map<string, MFContainer>();
 
 async function loadModulePage(moduleId: string): Promise<React.ComponentType> {
-  if (!registeredModules.has(moduleId)) {
-    registerRemotes([{ name: moduleId, entry: `/assets/modules/${moduleId}/remoteEntry.js` }]);
-    registeredModules.add(moduleId);
+  let container = loadedContainers.get(moduleId);
+
+  if (!container) {
+    const entryUrl = `/assets/modules/${moduleId}/remoteEntry.js`;
+    container = await import(/* @vite-ignore */ entryUrl) as unknown as MFContainer;
+    await container.init({}).catch(() => {});
+    loadedContainers.set(moduleId, container);
   }
 
-  const mod = await loadRemote<{ default: React.ComponentType }>(`${moduleId}/Page`);
-  if (!mod) throw new Error(`Module ${moduleId} did not export a Page component`);
+  const factory = await container.get('./Page');
+  const mod = factory();
   return mod.default;
 }
 
