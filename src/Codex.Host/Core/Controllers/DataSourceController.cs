@@ -12,7 +12,7 @@ public class DataSourceController(DataSourceService svc) : ControllerBase
     public async Task<IActionResult> List()
     {
         var sources = await svc.ListAsync();
-        return Ok(sources.Select(s => new { s.Id, s.Type, s.DisplayName }));
+        return Ok(sources);
     }
 
     [HttpPost]
@@ -25,7 +25,16 @@ public class DataSourceController(DataSourceService svc) : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(string id, [FromBody] UpdateDataSourceRequest req)
     {
-        await svc.UpdateAsync(id, req.DisplayName, req.Credentials);
+        if (req.Credentials.ValueKind == System.Text.Json.JsonValueKind.Undefined)
+            return BadRequest("Credentials must be provided.");
+        try
+        {
+            await svc.UpdateAsync(id, req.DisplayName, req.Credentials);
+        }
+        catch (KeyNotFoundException)
+        {
+            return NotFound();
+        }
         return NoContent();
     }
 

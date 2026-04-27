@@ -35,14 +35,17 @@ public class DashboardService(CodexDbContext db)
     {
         var pages = await GetPagesAsync();
         if (pages.Any(p => p.ModuleId == moduleId)) return;
-        pages.Add(new DashboardPage(moduleId, pages.Count, false));
+        var nextOrder = pages.Count == 0 ? 0 : pages.Max(p => p.Order) + 1;
+        pages.Add(new DashboardPage(moduleId, nextOrder, false));
         await SetPagesAsync(pages);
     }
 
     public async Task DisableModuleAsync(string moduleId)
     {
         var pages = await GetPagesAsync();
-        pages = pages.Where(p => p.ModuleId != moduleId).ToList();
-        await SetPagesAsync(pages);
+        var filtered = pages.Where(p => p.ModuleId != moduleId).ToList();
+        if (filtered.Count == pages.Count) return;
+        var reordered = filtered.Select((p, i) => p with { Order = i }).ToList();
+        await SetPagesAsync(reordered);
     }
 }

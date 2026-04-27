@@ -6,25 +6,34 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Codex.Host.Core.Services;
 
+public record DataSourceSummary(string Id, string Type, string DisplayName);
+
 public class DataSourceService(CodexDbContext db, IDataProtectionProvider dp)
 {
     private readonly IDataProtector _protector = dp.CreateProtector("Codex.DataSources.v1");
 
-    public async Task<DataSource> CreateAsync(string id, string type, string displayName, object credentials)
+    public async Task<DataSourceSummary> CreateAsync(string id, string type, string displayName, object credentials)
     {
         var json = JsonSerializer.Serialize(credentials);
         var encrypted = _protector.Protect(json);
         var ds = new DataSource { Id = id, Type = type, DisplayName = displayName, CredentialsJson = encrypted };
         db.DataSources.Add(ds);
         await db.SaveChangesAsync();
-        return ds;
+        return new DataSourceSummary(ds.Id, ds.Type, ds.DisplayName);
     }
 
-    public async Task<DataSource?> GetAsync(string id) =>
-        await db.DataSources.FindAsync(id);
+    public async Task<DataSourceSummary?> GetAsync(string id)
+    {
+        var ds = await db.DataSources.FindAsync(id);
+        if (ds is null) return null;
+        return new DataSourceSummary(ds.Id, ds.Type, ds.DisplayName);
+    }
 
-    public async Task<List<DataSource>> ListAsync() =>
-        await db.DataSources.ToListAsync();
+    public async Task<List<DataSourceSummary>> ListAsync()
+    {
+        var list = await db.DataSources.ToListAsync();
+        return list.Select(s => new DataSourceSummary(s.Id, s.Type, s.DisplayName)).ToList();
+    }
 
     public async Task<JsonElement?> GetCredentialsAsync(string id)
     {
