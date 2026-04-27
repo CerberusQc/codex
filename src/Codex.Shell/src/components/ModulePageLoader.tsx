@@ -1,26 +1,36 @@
 import { Suspense, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { init, loadRemote, registerRemotes } from '@module-federation/runtime';
 
-// Avoid re-init for already-registered remotes
+// remoteEntry.js files built by @module-federation/vite are ES modules.
+// The runtime's default <script> loader fails with "Cannot use import statement outside a module".
+// This plugin makes the runtime use <script type="module"> instead.
+const esmPlugin = {
+  name: 'esm-entry-loader',
+  createScript({ url }: { url: string }) {
+    const script = document.createElement('script');
+    script.type = 'module';
+    script.src = url;
+    return script;
+  }
+};
+
+// Initialize the MF host once; remotes are registered dynamically as modules are opened.
+init({
+  name: 'codex-shell',
+  remotes: [],
+  plugins: [esmPlugin],
+  shared: {
+    react: { version: '18.0.0', strategy: 'loaded-first' },
+    'react-dom': { version: '18.0.0', strategy: 'loaded-first' }
+  }
+});
+
 const registeredModules = new Set<string>();
 
 async function loadModulePage(moduleId: string): Promise<React.ComponentType> {
-  const { init, loadRemote } = await import('@module-federation/runtime');
-
   if (!registeredModules.has(moduleId)) {
-    await init({
-      name: 'codex-shell',
-      remotes: [
-        {
-          name: moduleId,
-          entry: `/assets/modules/${moduleId}/remoteEntry.js`
-        }
-      ],
-      shared: {
-        react: { version: '18.0.0', strategy: 'loaded-first' },
-        'react-dom': { version: '18.0.0', strategy: 'loaded-first' }
-      }
-    });
+    registerRemotes([{ name: moduleId, entry: `/assets/modules/${moduleId}/remoteEntry.js` }]);
     registeredModules.add(moduleId);
   }
 
