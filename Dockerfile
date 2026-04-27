@@ -39,6 +39,11 @@ WORKDIR /app
 
 COPY --from=build-base /out ./
 
+# Make Codex.ModuleSDK source available at /src/Codex.ModuleSDK so that module
+# project references (../../../src/Codex.ModuleSDK/...) resolve when GitPoller
+# runs `dotnet build` on modules mounted at /modules/{id}/backend/
+COPY --from=build-base /src/src/Codex.ModuleSDK /src/Codex.ModuleSDK
+
 # Create required directories
 RUN mkdir -p data wwwroot/assets/modules
 
