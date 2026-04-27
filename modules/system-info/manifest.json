@@ -1,0 +1,9 @@
+{
+  "id": "system-info",
+  "displayName": "System Info",
+  "version": "1.0.0",
+  "description": "Shows host CPU, memory, and uptime",
+  "icon": "🖥️",
+  "pageRoute": "/system-info",
+  "requires": []
+}
