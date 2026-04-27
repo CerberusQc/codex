@@ -1,3 +1,20 @@
+import { Navigate, Route, Routes } from 'react-router-dom';
+import Layout from './components/Layout';
+import ModulePageLoader from './components/ModulePageLoader';
+
+// Stubs — replaced in Tasks 13 and 14
+function Store() { return <div className="text-2xl font-semibold text-gray-700">Module Store</div>; }
+function DataSources() { return <div className="text-2xl font-semibold text-gray-700">Data Sources</div>; }
+
 export default function App() {
-  return <div className="p-4 text-gray-800">Codex loading...</div>;
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route index element={<Navigate to="/store" replace />} />
+        <Route path="store" element={<Store />} />
+        <Route path="datasources" element={<DataSources />} />
+        <Route path="mod/:moduleId" element={<ModulePageLoader />} />
+      </Route>
+    </Routes>
+  );
 }
