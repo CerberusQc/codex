@@ -1,9 +1,8 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
 import ModulePageLoader from './components/ModulePageLoader';
+import Store from './pages/Store';
 
-// Stubs — replaced in Tasks 13 and 14
-function Store() { return <div className="text-2xl font-semibold text-gray-700">Module Store</div>; }
 function DataSources() { return <div className="text-2xl font-semibold text-gray-700">Data Sources</div>; }
 
 export default function App() {
