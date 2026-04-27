@@ -26,6 +26,7 @@ public class ModuleLoader(ModuleRegistry registry, ILogger<ModuleLoader> logger)
 
             var dlls = Directory.GetFiles(builtBackendPath, "*.dll")
                 .Where(f => !IsSystemAssembly(Path.GetFileName(f)))
+                .Where(f => !Path.GetFileName(f).Equals("Codex.ModuleSDK.dll", StringComparison.OrdinalIgnoreCase))
                 .ToArray();
 
             if (dlls.Length == 0)
