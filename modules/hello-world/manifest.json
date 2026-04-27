@@ -1,0 +1,9 @@
+{
+  "id": "hello-world",
+  "displayName": "Hello World",
+  "version": "1.0.0",
+  "description": "Validates the full load pipeline",
+  "icon": "👋",
+  "pageRoute": "/hello-world",
+  "requires": []
+}
