@@ -26,8 +26,8 @@ RUN dotnet publish src/Codex.Host/Codex.Host.csproj -c Release -o /out
 # Copy shell build output into wwwroot
 RUN cp -r src/Codex.Shell/dist/. /out/wwwroot/
 
-# Stage 2: runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+# Stage 2: runtime — uses SDK image so GitPoller can run `dotnet build` on modules at runtime
+FROM mcr.microsoft.com/dotnet/sdk:8.0
 
 # Install Node.js 20 and git (needed for runtime module building and git polling)
 RUN apt-get update && apt-get install -y curl git && \
