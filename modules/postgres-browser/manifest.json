@@ -1,0 +1,9 @@
+{
+  "id": "postgres-browser",
+  "displayName": "Postgres Browser",
+  "version": "1.0.0",
+  "description": "Browse tables and row counts from a PostgreSQL datasource",
+  "icon": "🐘",
+  "pageRoute": "/postgres-browser",
+  "requires": ["postgres:demo"]
+}
