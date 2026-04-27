@@ -7,7 +7,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers()
     .AddJsonOptions(o => o.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase);
-builder.Services.AddDataProtection();
+builder.Services.AddDataProtection()
+    .PersistKeysToFileSystem(new System.IO.DirectoryInfo("data/dp-keys"));
 
 builder.Services.AddDbContext<CodexDbContext>(opts =>
     opts.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=data/codex.db"));
@@ -24,6 +25,7 @@ var app = builder.Build();
 
 // Ensure directories exist and run migrations
 Directory.CreateDirectory("data");
+Directory.CreateDirectory("data/dp-keys");
 Directory.CreateDirectory("wwwroot/assets/modules");
 using (var scope = app.Services.CreateScope())
 {

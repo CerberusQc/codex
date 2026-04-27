@@ -39,8 +39,17 @@ public class DataSourceService(CodexDbContext db, IDataProtectionProvider dp)
     {
         var ds = await db.DataSources.FindAsync(id);
         if (ds is null) return null;
-        var json = _protector.Unprotect(ds.CredentialsJson);
-        return JsonSerializer.Deserialize<JsonElement>(json);
+        try
+        {
+            var json = _protector.Unprotect(ds.CredentialsJson);
+            return JsonSerializer.Deserialize<JsonElement>(json);
+        }
+        catch (System.Security.Cryptography.CryptographicException)
+        {
+            // Key ring changed (e.g. container restarted without persisted keys).
+            // Treat as missing so the module gets MissingDatasource status.
+            return null;
+        }
     }
 
     public async Task UpdateAsync(string id, string displayName, object credentials)
