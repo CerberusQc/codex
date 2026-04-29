@@ -1,6 +1,7 @@
 using Codex.Host.Core.Data;
 using Codex.Host.Core.Services;
 using Codex.Host.Modules;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
