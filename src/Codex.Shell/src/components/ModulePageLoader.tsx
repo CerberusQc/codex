@@ -1,10 +1,21 @@
 import { Suspense, useEffect, useState } from 'react';
+import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import { useParams } from 'react-router-dom';
 
-// @module-federation/vite builds remoteEntry.js as a pure ES module that exports
-// { init, get } — the standard MF container interface. We load it via native
-// import() rather than @module-federation/runtime's loadRemote, which uses
-// <script> tags and looks for window[name] globals that are never set.
+// Share scope passed to every remote container so they use the shell's React
+// rather than their own bundled copy. Two React instances break hooks because
+// useState/useEffect rely on the active dispatcher set by the running renderer.
+const reactVer = React.version;
+const SHARE_SCOPE = {
+  react: {
+    [reactVer]: { version: reactVer, scope: ['default'], get: () => Promise.resolve(() => React), from: 'codex-shell', loaded: true }
+  },
+  'react-dom': {
+    [reactVer]: { version: reactVer, scope: ['default'], get: () => Promise.resolve(() => ReactDOM), from: 'codex-shell', loaded: true }
+  }
+};
+
 interface MFContainer {
   init: (shareScope: Record<string, unknown>, initScope?: unknown[]) => Promise<unknown>;
   get: (module: string) => Promise<() => { default: React.ComponentType }>;
@@ -18,7 +29,7 @@ async function loadModulePage(moduleId: string): Promise<React.ComponentType> {
   if (!container) {
     const entryUrl = `/assets/modules/${moduleId}/remoteEntry.js`;
     container = await import(/* @vite-ignore */ entryUrl) as unknown as MFContainer;
-    await container.init({}).catch(() => {});
+    await container.init(SHARE_SCOPE).catch(() => {});
     loadedContainers.set(moduleId, container);
   }
 
